@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "564471024665",
+    "project_id": "university-tracking-system",
+    "storage_bucket": "university-tracking-system.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:564471024665:android:24646f175b26762ed3ae88",
+        "android_client_info": {
+          "package_name": "com.example.transport_tracking_system"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "564471024665-2tqqrin1492mo4276ul7fuok7o8tgon3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAX3q28kJfi4RcMFh49eqtxUV-gYvmwrsQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "564471024665-2tqqrin1492mo4276ul7fuok7o8tgon3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
