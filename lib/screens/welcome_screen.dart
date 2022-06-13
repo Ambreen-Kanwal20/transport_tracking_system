@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:transport_tracking_system/screens/admin_login_screen.dart';
 import 'login_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
@@ -48,15 +49,37 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               // List Of DropdownMenuItem
               DropdownMenuItem<String>(
                 // Value Returned
+                value: "Login as a Admin",
+                // Value Displayed
+                child: Center(
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.push(context, MaterialPageRoute(
+                        builder: (context) {
+                          return AdminLoginScreen();
+                        },
+                      ));
+                    },
+                    child: Text('Login as a Admin'),
+                  ),
+                ),
+              ),
+
+              DropdownMenuItem<String>(
+                // Value Returned
                 value: "Login as a Student",
                 // Value Displayed
                 child: Center(
                   child: TextButton(
                     onPressed: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) {
-                        return LoginScreen();
-                      }));
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) {
+                              return LoginScreen();
+                            },
+                           ),
+                      );
                     },
                     child: Text('Login as a Student'),
                   ),
@@ -69,9 +92,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 child: Center(
                   child: TextButton(
                     onPressed: () {
-                      // Navigator.push(context,
-                      //     MaterialPageRoute(builder: (context) {
-                      //     returned    ));
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) {
+                              return LoginScreen();
+                            },
+                        )     // settings: RouteSettings(arguments: true)),
+                      );
                     },
                     child: Text('Login as a Driver'),
                   ),

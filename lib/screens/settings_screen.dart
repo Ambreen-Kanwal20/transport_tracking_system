@@ -1,10 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:transport_tracking_system/screens/alert_dialog.dart';
-import 'package:transport_tracking_system/screens/change_password_screen.dart';
-import 'package:transport_tracking_system/screens/login_screen.dart';
+import 'package:transport_tracking_system/screens/welcome_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'alert_dialog.dart';
+import 'change_password_screen.dart';
 import 'edit_profile_screen.dart';
+import 'login_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -19,17 +20,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   alertDialog() async {
-      final action = await AlertDialogs.yesCancelDialog(
-          context, 'Logout', 'Are you sure?');
-      if (action == DialogsAction.yes) {
-        FirebaseAuth.instance.signOut();
-        Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => LoginScreen(),
-            ));
-      }
-
+    final action =
+        await AlertDialogs.yesCancelDialog(context, 'Logout', 'Are you sure?');
+    if (action == DialogsAction.yes) {
+      FirebaseAuth.instance.signOut();
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => WelcomeScreen(),
+          ));
+    }
   }
 
   @override
@@ -52,6 +52,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     children: [
                       buildAccountOption(
                           context: context,
+                          icon: Icon(Icons.password,
+                              color: Colors.blue, size: 18),
                           title: 'Change Password',
                           route: () {
                             Navigator.push(
@@ -63,6 +65,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       Divider(),
                       buildAccountOption(
                           context: context,
+                          icon:
+                              Icon(Icons.person, color: Colors.blue, size: 18),
                           title: 'Edit Profile',
                           route: () {
                             Navigator.push(
@@ -74,6 +78,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       Divider(),
                       buildAccountOption(
                           context: context,
+                          icon: Icon(
+                            Icons.help,
+                            color: Colors.blue,
+                            size: 18,
+                          ),
                           title: 'Contact us',
                           route: () {
                             launch(
@@ -82,6 +91,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       Divider(),
                       buildAccountOption(
                           context: context,
+                          icon:
+                              Icon(Icons.logout, color: Colors.blue, size: 18),
                           title: 'Logout',
                           route: () {
                             alertDialog();
@@ -92,19 +103,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   GestureDetector buildAccountOption(
-      {required BuildContext context, required String title, required route}) {
+      {required BuildContext context,
+      required icon,
+      required String title,
+      required route}) {
     return GestureDetector(
         onTap: route,
         child: Container(
           padding: EdgeInsets.all(10),
           child: Row(
             children: [
-
-              // Icon(
-              //   Icons.security,
-              //   color: Colors.blue,
-              //   size: 17,
-              // ),
+              icon,
               Expanded(
                 child: Padding(
                     padding: EdgeInsets.only(left: 10.0),

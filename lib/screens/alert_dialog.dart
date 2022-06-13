@@ -13,26 +13,28 @@ class AlertDialogs {
         barrierDismissible: false,
         builder: (BuildContext context) {
           return AlertDialog(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.0)),
             title: Text(title),
             content: Text(body),
             actions: <Widget>[
               FlatButton(
-                  onPressed: () => Navigator.of(context).pop(DialogsAction.cancel ),
+                  onPressed: () =>
+                      Navigator.of(context).pop(DialogsAction.cancel),
                   child: Text(
                     'Cancel',
-                    style: TextStyle(
-                        color: Colors.blueGrey),
+                    style: TextStyle(color: Colors.blueGrey),
                   )),
               FlatButton(
-          onPressed: () => Navigator.of(context).pop(DialogsAction.yes),
-          child: Text('Confirm',
-            style: TextStyle(
-                color: Colors.blueGrey, fontWeight: FontWeight.bold),
-          ))
+                  onPressed: () => Navigator.of(context).pop(DialogsAction.yes),
+                  child: Text(
+                    'Confirm',
+                    style: TextStyle(
+                        color: Colors.blueGrey, fontWeight: FontWeight.bold),
+                  ))
             ],
           );
         });
-    return (action !=  null) ? action: DialogsAction.cancel;
+    return (action != null) ? action : DialogsAction.cancel;
   }
 }

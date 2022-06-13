@@ -1,15 +1,18 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'forgot_password_screen.dart';
+import 'package:transport_tracking_system/screens/admin_screen.dart';
+import 'package:transport_tracking_system/screens/forgot_password_screen.dart';
 
-class DriverLoginScreen extends StatefulWidget {
-  const DriverLoginScreen({Key? key}) : super(key: key);
+class AdminLoginScreen extends StatefulWidget {
+  const AdminLoginScreen(
+      {Key? key,})
+      : super(key: key);
 
   @override
-  State<DriverLoginScreen> createState() => _DriverLoginScreenState();
+  State<AdminLoginScreen> createState() => _AdminLoginScreenState();
 }
 
-class _DriverLoginScreenState extends State<DriverLoginScreen> {
-
+class _AdminLoginScreenState extends State<AdminLoginScreen> {
   bool isHiddenPassword = true;
   final emailText = TextEditingController();
   final passwordText = TextEditingController();
@@ -37,6 +40,7 @@ class _DriverLoginScreenState extends State<DriverLoginScreen> {
         passwordValidation = false;
         emailValidation = false;
       });
+      AdminLogin();
     }
   }
 
@@ -46,9 +50,69 @@ class _DriverLoginScreenState extends State<DriverLoginScreen> {
     });
   }
 
+  void AdminLogin() async {
+    print(emailText.text);
+    print(passwordText.text);
+    try {
+      UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(
+          email: emailText.text, password: passwordText.text);
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (_) => AdminScreen()));
+
+      print('$userCredential userCredential');
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        backgroundColor: Colors.redAccent,
+        content: Text(
+          "Logged In successfully!",
+          style: TextStyle(
+            fontSize: 12,
+          ),
+        ),
+      ));
+    } on FirebaseAuthException catch (e) {
+      print('error $e');
+      if (e.code == 'user-not-found') {
+        print('No user found for that email.');
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          backgroundColor: Colors.orangeAccent,
+          content: Text(
+            "No user found for that email!",
+            style: TextStyle(
+              fontSize: 12,
+            ),
+          ),
+        ));
+      } else if (e.code == 'wrong-password') {
+        print('Wrong password provided for that user.');
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          backgroundColor: Colors.orangeAccent,
+          content: Text(
+            "Wrong password provided for that user!",
+            style: TextStyle(
+              fontSize: 12,
+            ),
+          ),
+        ));
+      }
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      emailText.text = 'admin@admin.com';
+      passwordText.text = 'admin1';
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
+    // final args = ModalRoute.of(context)!.settings.arguments;
     return Scaffold(
         backgroundColor: Colors.white,
         body: SafeArea(
@@ -155,7 +219,6 @@ class _DriverLoginScreenState extends State<DriverLoginScreen> {
                               padding: const EdgeInsets.all(3.0),
                               child: GestureDetector(
                                 onTap: () {
-                                  print('on tap button validation');
                                   validation();
                                 },
                                 child: Container(
@@ -172,11 +235,9 @@ class _DriverLoginScreenState extends State<DriverLoginScreen> {
                                       )),
                                 ),
                               )),
-                          const SizedBox(
-                            height: 20.0,
-                          ),
                         ]),
                   ))),
         ));
   }
 }
+

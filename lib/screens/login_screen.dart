@@ -1,11 +1,15 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:transport_tracking_system/screens/admin_screen.dart';
+import 'package:transport_tracking_system/screens/bottom_tabs.dart';
 import 'package:transport_tracking_system/screens/forgot_password_screen.dart';
-import 'package:transport_tracking_system/screens/signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
- 
+  const LoginScreen({
+    Key? key,
+  }) : super(key: key);
+
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
@@ -16,7 +20,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final passwordText = TextEditingController();
   bool emailValidation = false;
   bool passwordValidation = false;
-  FirebaseAuth auth = FirebaseAuth.instance;
 
   void validation() {
     if (emailText.text.isEmpty && passwordText.text.isEmpty) {
@@ -50,30 +53,51 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void userLogin() async {
-    //await FirebaseAuth.instance.signOut();
     print(emailText.text);
     print(passwordText.text);
     try {
-      UserCredential userCredential = await auth.signInWithEmailAndPassword(
-          email: emailText.text, password: passwordText.text);
+      UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(
+              email: emailText.text, password: passwordText.text);
+      Navigator.push(
+          context, MaterialPageRoute(builder: (_) => BottomTabsScreen()));
+
       print('$userCredential userCredential');
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        backgroundColor: Colors.redAccent,
+        content: Text(
+          "Logged In successfully!",
+          style: TextStyle(
+            fontSize: 12,
+          ),
+        ),
+      ));
     } on FirebaseAuthException catch (e) {
-      print('e $e');
+      print('error $e');
       if (e.code == 'user-not-found') {
         print('No user found for that email.');
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          backgroundColor: Colors.orangeAccent,
+          content: Text(
+            "No user found for that email!",
+            style: TextStyle(
+              fontSize: 12,
+            ),
+          ),
+        ));
       } else if (e.code == 'wrong-password') {
         print('Wrong password provided for that user.');
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          backgroundColor: Colors.orangeAccent,
+          content: Text(
+            "Wrong password provided for that user!",
+            style: TextStyle(
+              fontSize: 12,
+            ),
+          ),
+        ));
       }
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    setState(() {
-      emailText.text = 'ambreen@gmail.com';
-      passwordText.text = '123456';
-    });
   }
 
   @override
@@ -184,7 +208,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           padding: const EdgeInsets.all(3.0),
                           child: GestureDetector(
                             onTap: () {
-                              print('on tap button validation');
                               validation();
                             },
                             child: Container(
@@ -201,35 +224,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                   )),
                             ),
                           )),
-                      const SizedBox(
-                        height: 20.0,
-                      ),
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Text(" Don't have an account?",
-                                style: TextStyle(
-                                  color: Colors.blueGrey,
-                                )),
-                            TextButton(
-                              onPressed: () {
-                                Navigator.push(context,
-                                    MaterialPageRoute(builder: (context) {
-                                  return const SignUpScreen();
-                                }));
-                              },
-                              child: const Text(
-                                'Register',
-                                style: TextStyle(
-                                    color: Colors.blue,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16),
-                              ),
-                            )
-                          ]),
-                      const SizedBox(
-                        height: 30.0,
-                      ),
                     ]),
               ))),
         ));
