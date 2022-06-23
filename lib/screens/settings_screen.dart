@@ -5,7 +5,6 @@ import 'package:url_launcher/url_launcher.dart';
 import 'alert_dialog.dart';
 import 'change_password_screen.dart';
 import 'edit_profile_screen.dart';
-import 'login_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -15,6 +14,7 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  @override
   void initState() {
     super.initState();
   }

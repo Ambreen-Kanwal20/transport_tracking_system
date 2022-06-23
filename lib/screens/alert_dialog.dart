@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 enum DialogsAction { yes, cancel }
-
 class AlertDialogs {
   static Future<DialogsAction> yesCancelDialog(
     BuildContext context,
@@ -21,13 +20,13 @@ class AlertDialogs {
               FlatButton(
                   onPressed: () =>
                       Navigator.of(context).pop(DialogsAction.cancel),
-                  child: Text(
+                  child: const Text(
                     'Cancel',
                     style: TextStyle(color: Colors.blueGrey),
                   )),
               FlatButton(
                   onPressed: () => Navigator.of(context).pop(DialogsAction.yes),
-                  child: Text(
+                  child: const Text(
                     'Confirm',
                     style: TextStyle(
                         color: Colors.blueGrey, fontWeight: FontWeight.bold),

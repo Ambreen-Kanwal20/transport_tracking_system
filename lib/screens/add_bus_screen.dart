@@ -2,14 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class BusScreen extends StatefulWidget {
-  const BusScreen({Key? key}) : super(key: key);
+class AddBusScreen extends StatefulWidget {
+  const AddBusScreen({Key? key}) : super(key: key);
 
   @override
-  State<BusScreen> createState() => _BusScreenState();
+  State<AddBusScreen> createState() => _AddBusScreenState();
 }
 
-class _BusScreenState extends State<BusScreen> {
+class _AddBusScreenState extends State<AddBusScreen> {
   final BusNameText = TextEditingController();
   final BusDestinationText = TextEditingController();
 
@@ -43,10 +43,10 @@ class _BusScreenState extends State<BusScreen> {
 
   registration() async {
     try {
-       await FirebaseAuth.instance.signInAnonymously();
+      await FirebaseAuth.instance.signInAnonymously();
 
       CollectionReference bus_data =
-      FirebaseFirestore.instance.collection('bus_data');
+          FirebaseFirestore.instance.collection('bus_data');
 
       bus_data
           .add({
@@ -54,7 +54,6 @@ class _BusScreenState extends State<BusScreen> {
             'bus_name': BusNameText.text,
             'bus_destination': BusDestinationText.text,
             'bus_routes': [],
-            'bus_location': "",
             'bus_driver': "",
           })
           .then((value) => print("Bus Added"))

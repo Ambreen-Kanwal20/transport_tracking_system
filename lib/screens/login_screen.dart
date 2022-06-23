@@ -1,13 +1,18 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:transport_tracking_system/screens/admin_screen.dart';
 import 'package:transport_tracking_system/screens/bottom_tabs.dart';
 import 'package:transport_tracking_system/screens/forgot_password_screen.dart';
+import 'package:transport_tracking_system/screens/signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
+  final bool isAdmin;
+  final bool isStudent;
+
   const LoginScreen({
     Key? key,
+    required this.isAdmin,
+    required this.isStudent,
   }) : super(key: key);
 
   @override
@@ -59,8 +64,16 @@ class _LoginScreenState extends State<LoginScreen> {
       UserCredential userCredential = await FirebaseAuth.instance
           .signInWithEmailAndPassword(
               email: emailText.text, password: passwordText.text);
-      Navigator.push(
-          context, MaterialPageRoute(builder: (_) => BottomTabsScreen()));
+      print('user creadentails $userCredential');
+      if (widget.isAdmin == true) {
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (_) => AdminScreen()));
+      } else {
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (_) => BottomTabsScreen(isStudent: false)));
+      }
 
       print('$userCredential userCredential');
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -224,6 +237,38 @@ class _LoginScreenState extends State<LoginScreen> {
                                   )),
                             ),
                           )),
+                      const SizedBox(
+                        height: 20.0,
+                      ),
+                      widget.isStudent == true
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                  const Text(" Don't have an account?",
+                                      style: TextStyle(
+                                        color: Colors.blueGrey,
+                                      )),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.push(context,
+                                          MaterialPageRoute(builder: (context) {
+                                        return const SignUpScreen(
+                                          isDriver: false,
+                                        );
+                                      }));
+                                    },
+                                    child: const Text(
+                                      'Register',
+                                      style: TextStyle(
+                                          color: Colors.blue,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16),
+                                    ),
+                                  )
+                                ])
+                          : SizedBox(
+                              height: 1,
+                            ),
                     ]),
               ))),
         ));

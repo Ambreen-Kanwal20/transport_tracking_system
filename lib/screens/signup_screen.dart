@@ -5,14 +5,15 @@ import 'package:transport_tracking_system/screens/login_screen.dart';
 import 'bottom_tabs.dart';
 
 class SignUpScreen extends StatefulWidget {
-  const SignUpScreen({Key? key}) : super(key: key);
+  final bool isDriver;
+
+  const SignUpScreen({Key? key, required this.isDriver}) : super(key: key);
 
   @override
   State<SignUpScreen> createState() => _SignUpScreenState();
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
-  var value;
 
   bool isHiddenPassword = true;
   final nameText = TextEditingController();
@@ -21,20 +22,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
   bool nameValidation = false;
   bool emailValidation = false;
   bool passwordValidation = false;
-
-  CollectionReference students =
-      FirebaseFirestore.instance.collection('students');
-
-  Future<void> addStudent() {
-    return students
-        .add({
-          'name': nameText.text,
-          'email': emailText.text,
-          'password': passwordText.text,
-        })
-        .then((value) => print('Student added'))
-        .catchError((error) => print('Failed to Add user: $error'));
-  }
 
   void validation() {
     if (nameText.text.isEmpty &&
@@ -63,8 +50,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
         passwordValidation = true;
         nameValidation = false;
       });
+    } else {
+      registration();
     }
-    registration();
   }
 
   void _togglePasswordView() {
@@ -81,15 +69,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
         password: passwordText.text,
       );
 
-      CollectionReference student_details =
-          FirebaseFirestore.instance.collection('student_details');
-      student_details
+      CollectionReference user_details =
+          FirebaseFirestore.instance.collection('user_details');
+      user_details
           .add({
             'full_name': nameText.text,
             'email': emailText.text,
             'password': passwordText.text,
             'uid': FirebaseAuth.instance.currentUser!.uid,
             'payment status': false,
+            'isDriver?': widget.isDriver,
           })
           .then((value) => print("User Added"))
           .catchError((error) => print("Failed to add user: $error"));
@@ -107,7 +96,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => BottomTabsScreen()),
+        MaterialPageRoute(
+            builder: (context) => BottomTabsScreen(isStudent: true)),
       );
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
@@ -246,7 +236,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 const SizedBox(
                   height: 10.0,
                 ),
-
                 Padding(
                   padding: const EdgeInsets.all(3.0),
                   child: GestureDetector(
@@ -267,32 +256,33 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             ))),
                   ),
                 ),
-                    const SizedBox(
-                      height: 20.0,
+                const SizedBox(
+                  height: 20.0,
+                ),
+                Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  const Text("Already have an account?",
+                      style: TextStyle(
+                        color: Colors.blueGrey,
+                      )),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                        return const LoginScreen(
+                          isAdmin: false,
+                          isStudent: true,
+                        );
+                      }));
+                    },
+                    child: const Text(
+                      'Login',
+                      style: TextStyle(
+                          color: Colors.blue,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16),
                     ),
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text("Already have an account?",
-                              style: TextStyle(
-                                color: Colors.blueGrey,
-                              )),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.push(context,
-                                  MaterialPageRoute(builder: (context) {
-                                    return const LoginScreen();
-                                  }));
-                            },
-                            child: const Text(
-                              'Login',
-                              style: TextStyle(
-                                  color: Colors.blue,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16),
-                            ),
-                          )
-                        ]),
+                  )
+                ]),
               ])),
         )));
   }

@@ -1,67 +1,158 @@
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:location/location.dart';
 
 class MapScreen extends StatefulWidget {
-  const MapScreen({Key? key}) : super(key: key);
+  final String busId;
+  final bool isDriver;
+
+  const MapScreen({
+    Key? key,
+    required this.busId,
+    required this.isDriver,
+  }) : super(key: key);
 
   @override
   State<MapScreen> createState() => _MapScreenState();
 }
 
 class _MapScreenState extends State<MapScreen> {
-  Completer<GoogleMapController> _controller = Completer();
-  TextEditingController _searchController = TextEditingController();
+  var res = FirebaseFirestore.instance.collection('bus_data');
+  final Completer<GoogleMapController> _controller = Completer();
+  final Set<Marker> _markers = {};
+  final Set<Polyline> _polyline = {};
+  StreamSubscription<LocationData>? locationSubscription;
 
-  static final CameraPosition _ToTheSahiwal = CameraPosition(
-    target: LatLng(30.666121, 73.102013),
-    zoom: 14.4746,
-  );
+  final LatLng _lastMapPosition = LatLng(30.6815, 73.0895);
+  List<LatLng> S2S = [];
+  var docId;
+  int lattie = 5;
 
-  static final Marker _ToTheSahiwalMarker = Marker(
-    markerId: MarkerId('_ToTheSahiwal'),
-    infoWindow: InfoWindow(title: 'Sahiwal'),
-    icon: BitmapDescriptor.defaultMarker,
-    position: LatLng(30.666121, 73.102013),
-  );
+  void _onAddMarkerButtonPressed() async {
+    await FirebaseFirestore.instance
+        .collection('bus_data')
+        .where('bus_id', isEqualTo: widget.busId)
+        .get()
+        .then((QuerySnapshot querySnapshot) {
+      querySnapshot.docs.forEach((doc) {
+        setState(() {
+          docId = doc.id;
+        });
 
-  static final CameraPosition _currentLocation = CameraPosition(
-      bearing: 192.8334901395799,
-      target: LatLng(30.69130627971729, 73.09720280489398),
-      tilt: 59.440717697143555,
-      zoom: 19.151926040649414);
+        doc['bus_routes']
+            .map((e) =>
+        {
+          setState(() {
+            S2S.add(LatLng(e['lat'], e['lng']));
+          })
+        })
+            .toList();
+      });
+    });
 
-  static final Marker _currentLocationMarker = Marker(
-    markerId: MarkerId('_currentLocation'),
-    infoWindow: InfoWindow(title: 'My Location'),
-    icon: BitmapDescriptor.defaultMarker,
-    position: LatLng(30.69130627971729, 73.09720280489398),
-  );
+    S2S
+        .map((e) =>
+    {
+      _markers.add(Marker(
+        markerId: MarkerId(S2S.indexOf(e).toString()),
+        position: e,
+        icon: BitmapDescriptor.defaultMarker,
+      ))
+    })
+        .toList();
 
-  static final Polyline _polyLine = Polyline(
-    polylineId: PolylineId('_polyLine'),
-    points: [
-      LatLng(30.666121, 73.102013),
-      LatLng(30.69130627971729, 73.09720280489398),
-    ],
-    width: 3,
-  );
+    setState(() {
+      _polyline.add(Polyline(
+        polylineId: PolylineId(_lastMapPosition.toString()),
+        visible: true,
+        points: S2S,
+        color: Colors.blue,
+        width: 3,
+      ));
+    });
+  }
 
-  static final Polygon _polyGon = Polygon(
-    polygonId: PolygonId('_polyGon'),
-    points: [
-      LatLng(30.69130627971729, 73.09720280489398),
-      LatLng(30.666121, 73.102013),
-      LatLng(30.6461, 73.0810),
-      LatLng(30.6703, 73.0750),
-    ],
-    strokeWidth: 3,
-    fillColor: Colors.transparent,
-  );
+  fetchLocation() async {
+    Location location = new Location();
 
-  Future<void> _goToMyLocation() async {
-    final GoogleMapController controller = await _controller.future;
-    controller.animateCamera(CameraUpdate.newCameraPosition(_currentLocation));
+    bool _serviceEnabled;
+    PermissionStatus _permissionGranted;
+    LocationData _locationData;
+
+    _serviceEnabled = await location.serviceEnabled();
+    if (!_serviceEnabled) {
+      _serviceEnabled = await location.requestService();
+      if (!_serviceEnabled) {
+        return;
+      }
+    }
+
+    _permissionGranted = await location.hasPermission();
+    if (_permissionGranted == PermissionStatus.denied) {
+      _permissionGranted = await location.requestPermission();
+      if (_permissionGranted != PermissionStatus.granted) {
+        return;
+      }
+    }
+
+    _locationData = await location.getLocation();
+    location.enableBackgroundMode(enable: true);
+    locationSubscription = location.onLocationChanged.listen((LocationData currentLocation) {
+      // Use current location
+      print('location changed called');
+      res.doc(docId).update(
+          {'lat': currentLocation.latitude, 'lng': currentLocation.longitude});
+      updateMarkers(
+          currentLocation.latitude, currentLocation.longitude);
+    });
+  }
+
+  updateMarkers(double? lat, double? lng) async {
+    if (S2S.isNotEmpty) {
+      List<LatLng> newArray = [];
+      newArray.addAll(S2S);
+      print('newArray $newArray');
+      newArray.removeAt(0);
+      setState(() {
+        S2S.clear();
+        S2S.add(LatLng(lat as double, lng as double));
+        S2S.addAll(newArray);
+        _markers.add(Marker(
+          markerId: MarkerId(0.toString()),
+          position: S2S.elementAt(0),
+          icon: BitmapDescriptor.defaultMarker,
+        ));
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.isDriver) {
+      fetchLocation();
+    } else {
+      Timer.periodic(new Duration(seconds: 10), (timer) async {
+        await FirebaseFirestore.instance
+            .collection('bus_data')
+            .where('bus_id', isEqualTo: widget.busId)
+            .get()
+            .then((QuerySnapshot querySnapshot) {
+          querySnapshot.docs.forEach((doc) {
+            updateMarkers(doc['lat'], doc['lng']);
+          });
+        });
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    print('dispose called');
+    locationSubscription?.cancel();
+    super.dispose();
   }
 
   @override
@@ -75,25 +166,30 @@ class _MapScreenState extends State<MapScreen> {
             'Google Map',
             style: TextStyle(fontSize: 20.0, color: Colors.white),
           ),
+
         ),
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: _goToMyLocation,
-          label: Text('My Location'),
-          icon: Icon(Icons.person),
-        ),
-        body: GoogleMap(
-          mapType: MapType.normal,
-          polylines: {
-            _polyLine,
-          },
-          polygons: {
-            _polyGon,
-          },
-          markers: {_ToTheSahiwalMarker, _currentLocationMarker},
-          initialCameraPosition: _ToTheSahiwal,
-          onMapCreated: (GoogleMapController controller) {
-            _controller.complete(controller);
-          },
-        ));
+        body: SafeArea(
+            child: GoogleMap(
+              polylines: _polyline,
+              markers: _markers,
+              onMapCreated: (GoogleMapController controller) {
+                _controller.complete(controller);
+                _onAddMarkerButtonPressed();
+                // Timer.periodic(new Duration(seconds: 10), (timer) {
+                //   print('after 10 second called');
+                //   S2S.clear();
+                //   _markers.clear();
+                //   _polyline.clear();
+                //   _onAddMarkerButtonPressed();
+                // });
+              },
+
+              myLocationEnabled: true,
+              initialCameraPosition: CameraPosition(
+                target: _lastMapPosition,
+                zoom: 11.0,
+              ),
+              mapType: MapType.normal,
+            )));
   }
 }

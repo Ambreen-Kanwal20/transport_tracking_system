@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:transport_tracking_system/screens/admin_login_screen.dart';
 import 'login_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
@@ -48,15 +47,16 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             items: [
               // List Of DropdownMenuItem
               DropdownMenuItem<String>(
-                // Value Returned
                 value: "Login as a Admin",
-                // Value Displayed
                 child: Center(
                   child: TextButton(
                     onPressed: () {
                       Navigator.push(context, MaterialPageRoute(
                         builder: (context) {
-                          return AdminLoginScreen();
+                          return LoginScreen(
+                            isAdmin: true,
+                            isStudent: false,
+                          );
                         },
                       ));
                     },
@@ -66,19 +66,20 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               ),
 
               DropdownMenuItem<String>(
-                // Value Returned
                 value: "Login as a Student",
-                // Value Displayed
                 child: Center(
                   child: TextButton(
                     onPressed: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) {
-                              return LoginScreen();
-                            },
-                           ),
+                          builder: (context) {
+                            return LoginScreen(
+                              isAdmin: false,
+                              isStudent: true,
+                            );
+                          },
+                        ),
                       );
                     },
                     child: Text('Login as a Student'),
@@ -87,19 +88,18 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               ),
 
               DropdownMenuItem<String>(
-                // Value Returned
                 value: "Login as a Driver",
                 child: Center(
                   child: TextButton(
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) {
-                              return LoginScreen();
-                            },
-                        )     // settings: RouteSettings(arguments: true)),
-                      );
+                      Navigator.push(context, MaterialPageRoute(
+                        builder: (context) {
+                          return LoginScreen(
+                            isAdmin: false,
+                            isStudent: false,
+                          );
+                        },
+                      ));
                     },
                     child: Text('Login as a Driver'),
                   ),

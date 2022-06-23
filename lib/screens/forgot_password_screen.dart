@@ -23,8 +23,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   forgetPassword() async {
     try {
-      await FirebaseAuth.instance
-          .sendPasswordResetEmail(email: emailText.text);
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: emailText.text);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         backgroundColor: Colors.orangeAccent,
         content: Text(
